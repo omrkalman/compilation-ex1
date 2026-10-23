@@ -1,7 +1,3 @@
-param(
-    [string]$JFlexJarPath
-)
-
 $ErrorActionPreference = 'Stop'
 $projectRoot = $PSScriptRoot
 
@@ -13,22 +9,10 @@ try {
         }
     }
 
-    if (-not $JFlexJarPath) {
-        $JFlexJarPath = $env:JFLEX_JAR
-    }
-    if (-not $JFlexJarPath) {
-        $bundledJFlexJar = Get-ChildItem -LiteralPath '.\external_jars' -Filter 'jflex-full*.jar' -File |
-            Select-Object -First 1
-        if ($bundledJFlexJar) {
-            $JFlexJarPath = $bundledJFlexJar.FullName
-        }
-    }
-    if (-not $JFlexJarPath -or -not (Test-Path -LiteralPath $JFlexJarPath -PathType Leaf)) {
-        throw "JFlex standalone JAR not found. Place a jflex-full*.jar in .\external_jars, set the JFLEX_JAR environment variable, or pass -JFlexJarPath."
-    }
-
     $requiredFiles = @(
         '.\jflex\LEX_FILE.lex',
+        '.\external_jars\jflex-1.9.1.jar',
+        '.\external_jars\java-cup-11b.jar',
         '.\external_jars\java-cup-11b-runtime.jar',
         '.\manifest\MANIFEST.MF',
         '.\input\Input.txt'
@@ -56,7 +40,8 @@ try {
     }
 
     Write-Host '[2] Generate Lexer.java with JFlex'
-    & java -cp $JFlexJarPath jflex.Main -q -d '.\src' '.\jflex\LEX_FILE.lex'
+    $jflexClassPath = '.\external_jars\jflex-1.9.1.jar;.\external_jars\java-cup-11b.jar'
+    & java -cp $jflexClassPath jflex.Main -q -d '.\src' '.\jflex\LEX_FILE.lex'
     if ($LASTEXITCODE -ne 0) {
         throw "JFlex failed with exit code $LASTEXITCODE."
     }
