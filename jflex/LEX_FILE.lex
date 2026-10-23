@@ -96,10 +96,31 @@ ID				= [a-z]+
 
 "+"					{ return symbol(TokenNames.PLUS);}
 "-"					{ return symbol(TokenNames.MINUS);}
-"PPP"				{ return symbol(TokenNames.TIMES);}
+"*"					{ return symbol(TokenNames.TIMES);}
 "/"					{ return symbol(TokenNames.DIVIDE);}
+"="					{ return symbol(TokenNames.EQ);}
+"and"				{ return symbol(TokenNames.AND);}
+"or"				{ return symbol(TokenNames.OR);}
 "("					{ return symbol(TokenNames.LPAREN);}
 ")"					{ return symbol(TokenNames.RPAREN);}
+"["					{ return symbol(TokenNames.LBRACK);}
+"]"					{ return symbol(TokenNames.RBRACK);}
+","					{ return symbol(TokenNames.COMMA);}
+"."					{ return symbol(TokenNames.DOT);}
+";"					{ return symbol(TokenNames.SEMICOLON);}
+":="				{ return symbol(TokenNames.ASSIGN);}
+"array"				{ return symbol(TokenNames.ARRAY);}
+"class"				{ return symbol(TokenNames.CLASS);}
+"extends"			{ return symbol(TokenNames.EXTENDS);}
+"new"				{ return symbol(TokenNames.NEW);}
+"nil"				{ return symbol(TokenNames.NIL);}
+"if"				{ return symbol(TokenNames.IF);}
+"else"				{ return symbol(TokenNames.ELSE);}
+"while"				{ return symbol(TokenNames.WHILE);}
+"return"			{ return symbol(TokenNames.RETURN);}
+"int"				{ return symbol(TokenNames.TYPE_INT);}
+"string"			{ return symbol(TokenNames.TYPE_STRING);}
+"void"				{ return symbol(TokenNames.TYPE_VOID);}
 {INTEGER}			{ return symbol(TokenNames.INT, Integer.valueOf(yytext()));}
 {ID}				{ return symbol(TokenNames.ID,     yytext());}
 {WhiteSpace}		{ /* just skip what was found, do nothing */ }

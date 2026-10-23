@@ -34,6 +34,7 @@ public interface TokenNames {
   public static final int ID = 32;
   public static final int INT = 33;
   public static final int STRING = 34;
+  public static final int ERROR = 35;   // Isn't part of the language, a sink for everything not found
 
   public static String nameOf(int token) {
     switch (token) {
@@ -72,6 +73,7 @@ public interface TokenNames {
       case ID: return "ID";
       case INT: return "INT";
       case STRING: return "STRING";
+      case ERROR: return "ERROR";
       default: return null;
     }
   }
