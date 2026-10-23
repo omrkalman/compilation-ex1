@@ -1,5 +1,4 @@
 import java.io.*;
-import java.io.PrintWriter;
 
 import java_cup.runtime.Symbol;
    
@@ -13,6 +12,9 @@ public class Main
 		PrintWriter fileWriter;
 		String inputFileName = argv[0];
 		String outputFileName = argv[1];
+		StringBuilder out = new StringBuilder();
+		boolean error = false;
+		boolean isFirst = true;
 		
 		try
 		{
@@ -36,30 +38,38 @@ public class Main
 			/***********************/
 			s = l.next_token();
 
+
 			/********************************/
 			/* [5] Main reading tokens loop */
 			/********************************/
 			while (s.sym != TokenNames.EOF)
 			{
-				/************************/
-				/* [6] Print to console */
-				/************************/
-				System.out.print(TokenNames.nameOf(s.sym));
-				System.out.print("[");
-				System.out.print(l.getLine());
-				System.out.print(",");
-				System.out.print(l.getTokenStartPosition());
-				System.out.print("]:");
-				System.out.print(s.value);
-				System.out.print("\n");
+				if (!isFirst)
+				{
+					out.append("\n");
+				}
+				if (s.sym==TokenNames.ERROR){
+					error=true;
+					break;
+				}
+				isFirst=false;
 				
 				/*********************/
-				/* [7] Print to file */
+				/* Build the string */
 				/*********************/
-				fileWriter.print(l.getLine());
-				fileWriter.print(": ");
-				fileWriter.print(s.value);
-				fileWriter.print("\n");
+				
+				out.append(TokenNames.nameOf(s.sym));
+				if (s.value!=null){
+					out.append("(");
+					out.append(s.value);
+					out.append(")");
+				}
+				out.append("[");
+				out.append(l.getLine());
+				out.append(",");
+				out.append(l.getTokenStartPosition());
+				out.append("]");
+	
 				
 				/***********************/
 				/* [8] Read next token */
@@ -75,6 +85,8 @@ public class Main
 			/**************************/
 			/* [10] Close output file */
 			/**************************/
+			System.out.print(error ? "ERROR" : out.toString());
+			fileWriter.print(error ? "ERROR" : out.toString());
 			fileWriter.close();
     	}
 			     
