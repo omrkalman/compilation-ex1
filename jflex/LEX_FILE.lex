@@ -74,7 +74,12 @@ import java_cup.runtime.*;
 LineTerminator	= \r|\n|\r\n
 WhiteSpace		= {LineTerminator} | [ \t]
 INTEGER			= 0 | [1-9][0-9]*
-ID				= [a-z]+
+ID				= [a-zA-Z][a-zA-Z0-9]*
+LEADING_ZERO	= 0[0-9]+
+STRING			= \"[a-zA-Z]*\"
+COMMENT_CHAR    = [a-zA-Z0-9 \t\(\)\[\]\{\}\?\!\+\-\*\/\.\;]
+COMMENT_TYPE_1	= "//"{COMMENT_CHAR}*{LineTerminator}
+%state TYPE_2_COMMENT
 
 /******************************/
 /* DOLLAR DOLLAR - DON'T TOUCH! */
@@ -99,12 +104,16 @@ ID				= [a-z]+
 "*"					{ return symbol(TokenNames.TIMES);}
 "/"					{ return symbol(TokenNames.DIVIDE);}
 "="					{ return symbol(TokenNames.EQ);}
+"<"					{ return symbol(TokenNames.LT);}
+">"					{ return symbol(TokenNames.GT);}
 "and"				{ return symbol(TokenNames.AND);}
 "or"				{ return symbol(TokenNames.OR);}
 "("					{ return symbol(TokenNames.LPAREN);}
 ")"					{ return symbol(TokenNames.RPAREN);}
 "["					{ return symbol(TokenNames.LBRACK);}
 "]"					{ return symbol(TokenNames.RBRACK);}
+"{"					{ return symbol(TokenNames.LBRACE);}
+"}"					{ return symbol(TokenNames.RBRACE);}
 ","					{ return symbol(TokenNames.COMMA);}
 "."					{ return symbol(TokenNames.DOT);}
 ";"					{ return symbol(TokenNames.SEMICOLON);}
@@ -121,8 +130,28 @@ ID				= [a-z]+
 "int"				{ return symbol(TokenNames.TYPE_INT);}
 "string"			{ return symbol(TokenNames.TYPE_STRING);}
 "void"				{ return symbol(TokenNames.TYPE_VOID);}
-{INTEGER}			{ return symbol(TokenNames.INT, Integer.valueOf(yytext()));}
+{LEADING_ZERO}		{ return symbol(TokenNames.ERROR); }  // A leading zero is a lexical error
+{INTEGER}			{
+					  // We need to check overflow in L.
+					  String t = yytext();
+					  if (t.length() > 5 || Integer.parseInt(t) > 32767) // the length check is faster then parsing and checking
+					      return symbol(TokenNames.ERROR);
+					  return symbol(TokenNames.INT, Integer.valueOf(t));
+					}
 {ID}				{ return symbol(TokenNames.ID,     yytext());}
 {WhiteSpace}		{ /* just skip what was found, do nothing */ }
+{COMMENT_TYPE_1} { /* valid comment type 1: skip */ }
+"//"[^\r\n]*                          { return symbol(TokenNames.ERROR); }
+"/*"    { yybegin(TYPE_2_COMMENT); }
+{STRING} { return symbol(TokenNames.STRING, yytext()); }
+[^]     { return symbol(TokenNames.ERROR); } /* Error Sink */
 <<EOF>>				{ return symbol(TokenNames.EOF);}
+}
+
+
+<TYPE_2_COMMENT> {
+"*/"                          { yybegin(YYINITIAL); }
+{COMMENT_CHAR}|{LineTerminator} { /* skip */ }
+<<EOF>>                       { return symbol(TokenNames.ERROR); }   /* unclosed comment */
+[^]                           { return symbol(TokenNames.ERROR); }   /* illegal char, not in the set of COMMENT_CHARs */
 }
