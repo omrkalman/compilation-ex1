@@ -34,7 +34,6 @@ INPUT    = ${INPUT_DIR}/Input.txt
 OUTPUT   = ${OUTPUT_DIR}/OutputTokens.txt
 
 all:
-	clear
 	@echo "****************************"
 	@echo "*                          *"
 	@echo "*                          *"
